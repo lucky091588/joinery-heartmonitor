@@ -1,0 +1,5 @@
+name = Joinery Heartbeat Monitor
+description = No description yet
+package = Joinery
+core = 7.x
+version = 7.x-0.1

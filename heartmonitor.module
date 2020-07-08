@@ -1,11 +1,44 @@
 <?php
+
+/**
+ * Implements hook_menu().
+ */
+function heartmonitor_menu() {
+  $items['admin/config/system/heartmonitor'] = array(
+    'title' => t('Joinery Heartbeat Monitor'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('heartmonitor_admin_settings'),
+    'access arguments' => array('administer heartmonitor module'),
+    'description' => 'Settings for Joinery Heartbeat Monitor ',
+    'file' => 'heartmonitor.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function heartmonitor_permission() {
+  return array(
+    'administer heartmonitor module' => array(
+      'title' => t('Administer Joinery Heartbeat Monitor module'),
+      'description' => t('Perform administration tasks for Joinery Heartbeat Monitor module.'))
+  );
+}
+
 /*
 * Implement hook_cron()
 */
 function heartmonitor_cron() {
+  // Get the variables from the admin settings form
+  $string_404 = variable_get('string_404', '');
+  $min_age = variable_get('min_age', '');
+  $recipient_email = variable_get('recipient_email', '');
+  $min_time = variable_get('min_time', '');
+
   // Get last report log of 404 page (with 'ping-from-home') timestamp in watchdog table
-  $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND message LIKE '%ping-from-home%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
-  
+  $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND message LIKE '%".$string_404."%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
   // Get last report log of heartmonitor email notification timestamp in watchdog table
   $last_notified_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='heartmonitor' ORDER BY timestamp DESC LIMIT 1")->fetchField();
 
@@ -15,15 +48,15 @@ function heartmonitor_cron() {
 
     // add cron time to the queried timestamp in report log to get due time
     // cron time is a predetermine value
-    $due_time = strtotime('+10 minutes', $last_404_time);
+    $due_time = strtotime('+'.$min_age.' minutes', $last_404_time);
 
     // add email notification due time
     // this will determine the time you get the admin notification
-    $due_notified_time = $last_notified_time ? strtotime('+1 Hour', $last_notified_time) : 0;
+    $due_notified_time = $last_notified_time ? strtotime('+'.$min_time.' minutes', $last_notified_time) : 0;
 
     // if current time is more than the due time and email notification due time, send email to notify the admin
     if($curr_time > $due_time && $curr_time > $due_notified_time) {
-      drupal_mail('heartmonitor', 'heartmonitor_email', 'systems@joineryhq.com', language_default());
+      drupal_mail('heartmonitor', 'heartmonitor_email', $recipient_email, language_default());
       watchdog('heartmonitor', 'email notification', array(), WATCHDOG_NOTICE);
     }
   }

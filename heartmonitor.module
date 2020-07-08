@@ -3,19 +3,28 @@
 * Implement hook_cron()
 */
 function heartmonitor_cron() {
-  // Get last report log for 404 page (with 'ping-from-home')  timestamp in watchdog table
-  $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND  message LIKE '%ping-from-home%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
+  // Get last report log of 404 page (with 'ping-from-home') timestamp in watchdog table
+  $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND message LIKE '%ping-from-home%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
+  
+  // Get last report log of heartmonitor email notification timestamp in watchdog table
+  $last_notified_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='heartmonitor' ORDER BY timestamp DESC LIMIT 1")->fetchField();
 
   // Run code if there is data
   if($last_404_time) {
+    $curr_time = time(); // get current time
+
     // add cron time to the queried timestamp in report log to get due time
     // cron time is a predetermine value
     $due_time = strtotime('+10 minutes', $last_404_time);
-    $curr_time = time(); // get current time
 
-    // if current time is more than the due time, send email to notify the admin
-    if($curr_time > $due_time) {
+    // add email notification due time
+    // this will determine the time you get the admin notification
+    $due_notified_time = $last_notified_time ? strtotime('+1 Hour', $last_notified_time) : 0;
+
+    // if current time is more than the due time and email notification due time, send email to notify the admin
+    if($curr_time > $due_time && $curr_time > $due_notified_time) {
       drupal_mail('heartmonitor', 'heartmonitor_email', 'systems@joineryhq.com', language_default());
+      watchdog('heartmonitor', 'email notification', array(), WATCHDOG_NOTICE);
     }
   }
 }

@@ -16,7 +16,7 @@ function heartmonitor_admin_settings() {
   $form['heartmonitor']['string_404'] = array(
     '#type'          => 'textfield',
     '#title'         => t('String to search for in 404 URL'),
-    '#default_value' => variable_get('string_404', ''),
+    '#default_value' => _heartmonitor_variable_get('string_404', ''),
     '#required'      => TRUE,
   );
 
@@ -26,13 +26,17 @@ function heartmonitor_admin_settings() {
         ' type' => 'number',
     ),
     '#title'         => t('Maximum age (minutes) of 404 message'),
-    '#default_value' => variable_get('min_age', ''),
+    '#default_value' => _heartmonitor_variable_get('min_age', ''),
+    '#required'      => TRUE,
+    '#description'   => t('If 0, The alert will base in every cron run'),
   );
 
   $form['heartmonitor']['recipient_email'] = array(
     '#type'          => 'textfield',
-    '#title'         => t('Alert recipient email (allow multiple email addresses, separated by commas)'),
-    '#default_value' => variable_get('recipient_email', ''),
+    '#title'         => t('Alert recipient email'),
+    '#default_value' => _heartmonitor_variable_get('recipient_email', ''),
+    '#required'      => TRUE,
+    '#description'   => t('Accepts multiple email addresses, separated by commas'),
   );
 
   $form['heartmonitor']['min_time'] = array(
@@ -41,7 +45,9 @@ function heartmonitor_admin_settings() {
         ' type' => 'number',
     ),
     '#title'         => t('Minimum time (minutes) between email alerts'),
-    '#default_value' => variable_get('min_time', ''),
+    '#default_value' => _heartmonitor_variable_get('min_time', ''),
+    '#required'      => TRUE,
+    '#description'   => t('If 0, no minimum will be enforced'),
   );
 
   $form = system_settings_form($form);
@@ -64,7 +70,7 @@ function heartmonitor_admin_settings_validate($form, &$form_state) {
     }
 
     if($errors) {
-      form_set_error('recipient_email', t('You must enter a valid email address.'));
+      form_set_error('recipient_email', t('Invalid email address detected; please enter valid email addresses only.'));
     }
   }
 }

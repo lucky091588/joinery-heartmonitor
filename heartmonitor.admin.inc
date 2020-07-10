@@ -24,11 +24,13 @@ function heartmonitor_admin_settings() {
     '#type'          => 'textfield',
     '#attributes' => array(
         ' type' => 'number',
+        'min' => '0',
+        'step' => '1',
     ),
     '#title'         => t('Maximum age (minutes) of 404 message'),
     '#default_value' => _heartmonitor_variable_get('min_age', ''),
     '#required'      => TRUE,
-    '#description'   => t('If 0, The alert will base in every cron run'),
+    '#description'   => t('If 0, no checking is performed and no alerts are sent.'),
   );
 
   $form['heartmonitor']['recipient_email'] = array(
@@ -43,6 +45,8 @@ function heartmonitor_admin_settings() {
     '#type'          => 'textfield',
     '#attributes' => array(
         ' type' => 'number',
+        'min' => '0',
+        'step' => '1',
     ),
     '#title'         => t('Minimum time (minutes) between email alerts'),
     '#default_value' => _heartmonitor_variable_get('min_time', ''),

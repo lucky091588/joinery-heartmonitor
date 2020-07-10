@@ -1,5 +1,5 @@
 name = Joinery Heartbeat Monitor
-description = No description yet
+description = Heartbeat Monitor assumes that an external service is querying this site with intentionally nonexisten URLs to verify its uptime. At every cron run, Heartbeat Monitor will send an alert email if a suitable 404 message is not found in the log.
 package = Joinery
 core = 7.x
 version = 7.x-0.1

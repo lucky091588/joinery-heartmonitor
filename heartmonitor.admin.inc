@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Administrative page code for the Joinery Heart Monitor module.
@@ -23,9 +24,9 @@ function heartmonitor_admin_settings() {
   $form['heartmonitor']['min_age'] = array(
     '#type'          => 'textfield',
     '#attributes' => array(
-        ' type' => 'number',
-        'min' => '0',
-        'step' => '1',
+      ' type' => 'number',
+      'min' => '0',
+      'step' => '1',
     ),
     '#title'         => t('Maximum age (minutes) of 404 message'),
     '#default_value' => _heartmonitor_variable_get('min_age', ''),
@@ -44,9 +45,9 @@ function heartmonitor_admin_settings() {
   $form['heartmonitor']['min_time'] = array(
     '#type'          => 'textfield',
     '#attributes' => array(
-        ' type' => 'number',
-        'min' => '0',
-        'step' => '1',
+      ' type' => 'number',
+      'min' => '0',
+      'step' => '1',
     ),
     '#title'         => t('Minimum time (minutes) between email alerts'),
     '#default_value' => _heartmonitor_variable_get('min_time', ''),
@@ -67,13 +68,13 @@ function heartmonitor_admin_settings_validate($form, &$form_state) {
     $pieces = explode(",", $r_emails);
     $errors = 0;
 
-    foreach($pieces as $email) {
-      if(!valid_email_address($email)) {
+    foreach ($pieces as $email) {
+      if (!valid_email_address($email)) {
         $errors++;
       }
     }
 
-    if($errors) {
+    if ($errors) {
       form_set_error('recipient_email', t('Invalid email address detected; please enter valid email addresses only.'));
     }
   }

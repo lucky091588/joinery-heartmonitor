@@ -1,8 +1,11 @@
 <?php
+
 /**
- * Defince constant variables
+ * @file
+ * Defince constant variables.
  */
- define('HEARTMONITOR_WATCHDOG_MESSAGE_EMAIL_SENT', 'email notification');
+
+define('HEARTMONITOR_WATCHDOG_MESSAGE_EMAIL_SENT', 'email notification');
 
 /**
  * Implements variable_get.
@@ -16,7 +19,7 @@ function _heartmonitor_variable_get($var, $defvar = '') {
  */
 function heartmonitor_menu() {
   $items['admin/config/system/heartmonitor'] = array(
-    'title' => t('Joinery Heartbeat Monitor'),
+    'title' => 'Joinery Heartbeat Monitor',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('heartmonitor_admin_settings'),
     'access arguments' => array('administer heartmonitor module'),
@@ -34,64 +37,68 @@ function heartmonitor_permission() {
   return array(
     'administer heartmonitor module' => array(
       'title' => t('Administer Joinery Heartbeat Monitor module'),
-      'description' => t('Perform administration tasks for Joinery Heartbeat Monitor module.'))
+      'description' => t('Perform administration tasks for Joinery Heartbeat Monitor module.'),
+    ),
   );
 }
 
-/*
-* Implement hook_cron()
-*/
+/**
+ * Implements hook_cron().
+ */
 function heartmonitor_cron() {
-  // Get the variables from the admin settings form
+  // Get the variables from the admin settings form.
   $string_404 = _heartmonitor_variable_get('string_404', '');
   $min_age = _heartmonitor_variable_get('min_age', '');
-  $recipient_email = str_replace(' ', '', _heartmonitor_variable_get('recipient_email', '')); //remove whitespace
+  // Remove whitespace.
+  $recipient_email = str_replace(
+    ' ',
+    '',
+    _heartmonitor_variable_get('recipient_email', ''),
+  );
   $min_time = _heartmonitor_variable_get('min_time', '');
-  $curr_time = time(); // get current time
+  // Get current time.
+  $curr_time = time();
 
-  // if min_age is 0, don't run the code
-  if($min_age) {
+  // If min_age is 0, don't run the code.
+  if ($min_age) {
 
-    // Get last report log of heartmonitor email notification timestamp in watchdog table
-    $last_notified_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='heartmonitor' AND message='".HEARTMONITOR_WATCHDOG_MESSAGE_EMAIL_SENT."' ORDER BY timestamp DESC LIMIT 1")->fetchField();
+    // Get last report log of heartmonitor email notification timestamp.
+    $last_notified_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='heartmonitor' AND message='" . HEARTMONITOR_WATCHDOG_MESSAGE_EMAIL_SENT . "' ORDER BY timestamp DESC LIMIT 1")->fetchField();
 
-    // add email notification due time
-    // this will determine the time you get the admin notification
-    $due_notified_time = $last_notified_time ? strtotime('+'.$min_time.' minutes', $last_notified_time) : 0;
+    // Add email notification due time.
+    // This will determine the time you get the admin notification.
+    $due_notified_time = $last_notified_time ? strtotime('+' . $min_time . ' minutes', $last_notified_time) : 0;
 
-    // if current time is more than email notification due time, continue code to send email
-    if($curr_time > $due_notified_time) {
-      // Get last report log of 404 page (with 'ping-from-home') timestamp in watchdog table
-      $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND message LIKE '%".$string_404."%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
+    // If current time is more than email notification due time, continue.
+    if ($curr_time > $due_notified_time) {
+      // Get last report log of 404 page timestamp in watchdog table.
+      $last_404_time = db_query("SELECT timestamp FROM {watchdog} WHERE type='page not found' AND message LIKE '%" . $string_404 . "%' ORDER BY timestamp DESC LIMIT 1")->fetchField();
 
-      // Run code if there is data
-      if($last_404_time) {
-        // add cron time to the queried timestamp in report log to get due time
-        // cron time is a predetermine value
-        $due_time = strtotime('+'.$min_age.' minutes', $last_404_time);
+      // Run code if there is data.
+      if ($last_404_time) {
+        // Add cron time to the queried timestamp in report log to get due time.
+        // Cron time is a predetermine value.
+        $due_time = strtotime('+' . $min_age . ' minutes', $last_404_time);
 
-        // if current time is more than the due time, send email to notify the admin
-        if($curr_time > $due_time) {
+        // If current time is more than the due time, send email.
+        if ($curr_time > $due_time) {
           drupal_mail('heartmonitor', 'heartmonitor_email', $recipient_email, language_default());
           watchdog('heartmonitor', HEARTMONITOR_WATCHDOG_MESSAGE_EMAIL_SENT, array(), WATCHDOG_NOTICE);
-          drupal_set_message(t('Success') . ' ' .$recipient_email, 'status');
         }
       }
     }
   }
 }
 
-/*
-* Implement hook_mail()
-* messages to notify the admin
-*/
+/**
+ * Implements hook_mail().
+ */
 function heartmonitor_mail($key, &$message, $params) {
-  switch($key) {
+  switch ($key) {
     case 'heartmonitor_email':
       $message['subject'] = t('Joinery Heartbeat Monitor notification');
-      $message['body'][]  = t('This is an email from the site @site-name', array('@site-name' => variable_get('site_name','localhost')));
+      $message['body'][] = t('This is an email from the site @site-name', array('@site-name' => variable_get('site_name', 'localhost')));
       $message['body'][]  = t('The backup failed. Please check the site.');
-
       break;
   }
 }

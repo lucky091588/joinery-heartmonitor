@@ -53,7 +53,7 @@ function heartmonitor_cron() {
   $recipient_email = str_replace(
     ' ',
     '',
-    _heartmonitor_variable_get('recipient_email', ''),
+    _heartmonitor_variable_get('recipient_email', '')
   );
   $min_time = _heartmonitor_variable_get('min_time', '');
   // Get current time.

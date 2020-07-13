@@ -78,4 +78,8 @@ function heartmonitor_admin_settings_validate($form, &$form_state) {
       form_set_error('recipient_email', t('Invalid email address detected; please enter valid email addresses only.'));
     }
   }
+
+  if ($form_state['values']['min_age'] < 0 || !is_numeric($form_state['values']['min_age'])) {
+    form_set_error('min_age', t('Invalid value detected; please enter valid value.'));
+  }
 }

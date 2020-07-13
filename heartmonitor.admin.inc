@@ -12,6 +12,7 @@ function heartmonitor_admin_settings() {
   $form['heartmonitor'] = array(
     '#type'  => 'fieldset',
     '#title' => t('Joinery Heart Monitor server settings'),
+    '#description'   => t('Heartbeat Monitor assumes that an external service is querying this site with intentionally nonexisten URLs to verify its uptime. At every cron run, Heartbeat Monitor will send an alert email if a suitable 404 message is not found in the log.'),
   );
 
   $form['heartmonitor']['string_404'] = array(

@@ -80,11 +80,11 @@ function heartmonitor_admin_settings_validate($form, &$form_state) {
     }
   }
 
-  if ($form_state['values']['min_age'] < 0 || !is_numeric($form_state['values']['min_age'])) {
+  if ($form_state['values']['min_age'] < 0 || !ctype_digit($form_state['values']['min_age'])) {
     form_set_error('min_age', t('Invalid value detected; please enter valid value.'));
   }
 
-  if ($form_state['values']['min_time'] < 0 || !is_numeric($form_state['values']['min_time'])) {
+  if ($form_state['values']['min_time'] < 0 || !ctype_digit($form_state['values']['min_time'])) {
     form_set_error('min_time', t('Invalid value detected; please enter valid value.'));
   }
 }

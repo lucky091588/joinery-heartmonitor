@@ -32,7 +32,7 @@ function heartmonitor_admin_settings() {
     '#title'         => t('Maximum age (minutes) of 404 message'),
     '#default_value' => _heartmonitor_variable_get('min_age', ''),
     '#required'      => TRUE,
-    '#description'   => t('If 0, no checking is performed and no alerts are sent.'),
+    '#description'   => t('If 0, no checking is performed and no alerts are sent'),
   );
 
   $form['heartmonitor']['recipient_email'] = array(
@@ -81,10 +81,10 @@ function heartmonitor_admin_settings_validate($form, &$form_state) {
   }
 
   if ($form_state['values']['min_age'] < 0 || !ctype_digit($form_state['values']['min_age'])) {
-    form_set_error('min_age', t('Invalid value detected; please enter valid value.'));
+    form_set_error('min_age', t('Must be a positive integer.'));
   }
 
   if ($form_state['values']['min_time'] < 0 || !ctype_digit($form_state['values']['min_time'])) {
-    form_set_error('min_time', t('Invalid value detected; please enter valid value.'));
+    form_set_error('min_time', t('Must be a positive integer.'));
   }
 }
